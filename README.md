@@ -76,3 +76,58 @@ Update title and description:
 ```shell
 curl --header "Content-Type: application/json" --request PUT --data '{"id":4,"name":"New coffee","description":"Great croissants","type":"CAFE","campus":"ALTSTADT","street":"Hauptstraße","houseNumber":"95","postalCode":69117,"city":"Heidelberg"}' http://localhost:8080/api/pos/4 # set correct POS id here and in the body
 ```
+
+## Docker
+
+### Building an image from the Dockerfile
+
+```shell
+docker build -t campus-coffee:latest .
+```
+
+#### Manually create and run a Docker container based on the created image
+
+First, create a new Docker network named `campus-coffee-net`,
+then run a Postgres container and connect it to `campus-coffee-net`.
+Finally, run the container with the application (in `dev` profile, do not use in production),
+connect it to the network, and configure the application
+to use the database provided in the started Postgres container.
+
+```shell
+docker network create campus-coffee-net 2>/dev/null || true
+docker rm -f db 2>/dev/null || true
+docker run -d --name db --net campus-coffee-net -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16-alpine
+docker run --net campus-coffee-net -e SPRING_PROFILES_ACTIVE=dev -e SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres -p 8080:8080  -it --rm campus-coffee:latest
+```
+
+Explanation of selected options:
+
+`docker run -p 8080:8080 ` runs the container with port 8080 exposed to the host machine. You can change the port mapping if needed.
+`docker run ... -it`  runs a container in interactive mode with a pseudo-TTY (terminal).
+`docker run ... --rm` automatically removes the container (and its associated resources) if it exists already.
+
+#### Use Docker compose to run the app container together with the DB container
+
+Build container image:
+
+```shell
+docker compose build
+```
+
+Delete existing DB container (if you manually created it before):
+
+```shell
+docker rm -f db 2>/dev/null || true
+```
+
+Create and start containers:
+
+```shell
+docker compose down && docker compose up
+```
+
+Stop and remove containers and networks:
+
+```shell
+docker compose down
+```
