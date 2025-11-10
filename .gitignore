@@ -48,16 +48,16 @@ target/
 ####################
 
 # Compiled output
-frontend/dist
-application/src/main/resources/static
+#frontend/dist
+#application/src/main/resources/static
 
 # Node
-frontend/node
-frontend/node_modules
-frontend/npm-debug.log
+#frontend/node
+#frontend/node_modules
+#frontend/npm-debug.log
 
 # Angular
-frontend/.angular/cache
+#frontend/.angular/cache
 
 ###############
 # Claude Code #
